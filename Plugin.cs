@@ -1,4 +1,4 @@
-﻿using Aki.Reflection.Patching;
+﻿using SPT.Reflection.Patching;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
@@ -17,7 +17,7 @@ using UnityEngine;
 
 namespace PlantTimeModifier
 {
-    [BepInPlugin("com.utjan.PlantTimeModifier", "utjan.PlantTimeModifier", "1.0")]
+    [BepInPlugin("com.utjan.PlantTimeModifier", "utjan.PlantTimeModifier", "1.0.1")]
     public class Plugin : BaseUnityPlugin
     {
         public static ManualLogSource LogSource;
@@ -68,20 +68,21 @@ namespace PlantTimeModifier
     {
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.Method(typeof(GetActionsClass.Class1472), nameof(GetActionsClass.Class1472.method_0));
+            return AccessTools.Method(typeof(GetActionsClass.Class1498), nameof(GetActionsClass.Class1498.method_0));
         }
 
         //Save list of objective zoneId's and plantTime to and make sure we're multiplying the base plantTime value on repeat actions
         static List<KeyValuePair<string, float>> LeaveItemList = new List<KeyValuePair<string, float>>(); //zoneId, plantTime
 
         [PatchPrefix]
-        static void Prefix(GetActionsClass.Class1472 __instance)
+        static void Prefix(GetActionsClass.Class1498 __instance)
         {
             if (!Plugin.enabledPlugin.Value)
                 return;
 
             float plantTime;
-            var pair = LeaveItemList.FirstOrDefault(p => p.Key == __instance.class1470_0.resultLeaveItem.zoneId);
+            ConditionLeaveItemAtLocation itemToPlant = __instance.class1496_0.resultLeaveItem;
+            var pair = LeaveItemList.FirstOrDefault(p => p.Key == itemToPlant.zoneId);
             if (pair.Key != null)
             {
 #if DEBUG
@@ -91,22 +92,22 @@ namespace PlantTimeModifier
             }
             else
             {
-                LeaveItemList.Add(new KeyValuePair<string, float>(__instance.class1470_0.resultLeaveItem.zoneId, __instance.class1470_0.resultLeaveItem.plantTime));
-                plantTime = __instance.class1470_0.resultLeaveItem.plantTime;
+                LeaveItemList.Add(new KeyValuePair<string, float>(itemToPlant.zoneId, itemToPlant.plantTime));
+                plantTime = itemToPlant.plantTime;
             }
 
 #if DEBUG
-            Plugin.LogSource.LogWarning($"BASE LEAVE ITEM TIME {__instance.class1470_0.resultLeaveItem.plantTime}");
+            Plugin.LogSource.LogWarning($"BASE LEAVE ITEM TIME {itemToPlant.plantTime}");
             if (__instance.isMultitool)
                 Plugin.LogSource.LogWarning($"REPAIRING OBJECTIVE DETECTED");
 #endif
 
             float multiplier = (__instance.isMultitool == true) ? Plugin.timeMultiplierRepair.Value : Plugin.timeMultiplierHide.Value;
 
-            __instance.class1470_0.resultLeaveItem.plantTime = plantTime * multiplier;
+            itemToPlant.plantTime = plantTime * multiplier;
 
 #if DEBUG
-            Plugin.LogSource.LogWarning($"MODIFIED LEAVE ITEM TIME {__instance.class1470_0.resultLeaveItem.plantTime}");
+            Plugin.LogSource.LogWarning($"MODIFIED LEAVE ITEM TIME {itemToPlant.plantTime}");
 #endif
         }
     }
@@ -115,20 +116,21 @@ namespace PlantTimeModifier
     {
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.Method(typeof(GetActionsClass.Class1473), nameof(GetActionsClass.Class1473.method_0));
+            return AccessTools.Method(typeof(GetActionsClass.Class1499), nameof(GetActionsClass.Class1499.method_0));
         }
 
         //Save list of objective zoneId's and plantTime to and make sure we're multiplying the base plantTime value on repeat actions
         static List<KeyValuePair<string, float>> ResultBeaconList = new List<KeyValuePair<string, float>>(); //zoneId, plantTime
 
         [PatchPrefix]
-        static void Prefix(GetActionsClass.Class1473 __instance)
+        static void Prefix(GetActionsClass.Class1499 __instance)
         {
             if (!Plugin.enabledPlugin.Value)
                 return;
 
             float plantTime;
-            var pair = ResultBeaconList.FirstOrDefault(p => p.Key == __instance.resultBeacon.zoneId);
+            ConditionPlaceBeacon beaconToPlant = __instance.resultBeacon;
+            var pair = ResultBeaconList.FirstOrDefault(p => p.Key == beaconToPlant.zoneId);
             if (pair.Key != null)
             {
 #if DEBUG
@@ -138,18 +140,18 @@ namespace PlantTimeModifier
             }
             else
             {
-                ResultBeaconList.Add(new KeyValuePair<string, float>(__instance.resultBeacon.zoneId, __instance.resultBeacon.plantTime));
-                plantTime = __instance.resultBeacon.plantTime;
+                ResultBeaconList.Add(new KeyValuePair<string, float>(beaconToPlant.zoneId, beaconToPlant.plantTime));
+                plantTime = beaconToPlant.plantTime;
             }
 
 #if DEBUG
-            Plugin.LogSource.LogWarning($"BASE BEACON PLANT TIME {__instance.resultBeacon.plantTime}");
+            Plugin.LogSource.LogWarning($"BASE BEACON PLANT TIME {beaconToPlant.plantTime}");
 #endif
 
-            __instance.resultBeacon.plantTime = plantTime * Plugin.timeMultiplierProtect.Value;
+            beaconToPlant.plantTime = plantTime * Plugin.timeMultiplierProtect.Value;
 
 #if DEBUG
-            Plugin.LogSource.LogWarning($"MODIFIED BEACON PLANT TIME {__instance.resultBeacon.plantTime}");
+            Plugin.LogSource.LogWarning($"MODIFIED BEACON PLANT TIME {beaconToPlant.plantTime}");
 #endif
         }
     }
