@@ -17,7 +17,7 @@ using UnityEngine;
 
 namespace PlantTimeModifier
 {
-    [BepInPlugin("com.utjan.PlantTimeModifier", "utjan.PlantTimeModifier", "1.0.1")]
+    [BepInPlugin("com.utjan.PlantTimeModifier", "utjan.PlantTimeModifier", "1.0.2")]
     public class Plugin : BaseUnityPlugin
     {
         public static ManualLogSource LogSource;
@@ -68,20 +68,20 @@ namespace PlantTimeModifier
     {
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.Method(typeof(GetActionsClass.Class1498), nameof(GetActionsClass.Class1498.method_0));
+            return AccessTools.Method(typeof(GetActionsClass.Class1604), nameof(GetActionsClass.Class1604.method_0));
         }
 
         //Save list of objective zoneId's and plantTime to and make sure we're multiplying the base plantTime value on repeat actions
         static List<KeyValuePair<string, float>> LeaveItemList = new List<KeyValuePair<string, float>>(); //zoneId, plantTime
 
         [PatchPrefix]
-        static void Prefix(GetActionsClass.Class1498 __instance)
+        static void Prefix(GetActionsClass.Class1604 __instance)
         {
             if (!Plugin.enabledPlugin.Value)
                 return;
 
             float plantTime;
-            ConditionLeaveItemAtLocation itemToPlant = __instance.class1496_0.resultLeaveItem;
+            ConditionLeaveItemAtLocation itemToPlant = __instance.class1602_0.resultLeaveItem;
             var pair = LeaveItemList.FirstOrDefault(p => p.Key == itemToPlant.zoneId);
             if (pair.Key != null)
             {
@@ -116,14 +116,14 @@ namespace PlantTimeModifier
     {
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.Method(typeof(GetActionsClass.Class1499), nameof(GetActionsClass.Class1499.method_0));
+            return AccessTools.Method(typeof(GetActionsClass.Class1605), nameof(GetActionsClass.Class1605.method_0));
         }
 
         //Save list of objective zoneId's and plantTime to and make sure we're multiplying the base plantTime value on repeat actions
         static List<KeyValuePair<string, float>> ResultBeaconList = new List<KeyValuePair<string, float>>(); //zoneId, plantTime
 
         [PatchPrefix]
-        static void Prefix(GetActionsClass.Class1499 __instance)
+        static void Prefix(GetActionsClass.Class1605 __instance)
         {
             if (!Plugin.enabledPlugin.Value)
                 return;
